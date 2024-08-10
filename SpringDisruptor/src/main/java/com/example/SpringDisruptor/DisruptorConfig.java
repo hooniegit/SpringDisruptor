@@ -1,5 +1,9 @@
 package com.example.SpringDisruptor;
 
+import com.example.SpringDisruptor.EventOne.EventOne;
+import com.example.SpringDisruptor.EventOne.EventOneHandler;
+import com.example.SpringDisruptor.EventTwo.EventTwo;
+import com.example.SpringDisruptor.EventTwo.EventTwoHandler;
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
@@ -10,7 +14,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.Executors;
 
 @Configuration
 public class DisruptorConfig {
@@ -28,7 +31,7 @@ public class DisruptorConfig {
     private int eventTwoThreadCount;
     
     @Bean
-    public Disruptor<EventOne> auditDisruptor(RingBuffer<EventTwo> transferRingBuffer) {
+    public Disruptor<EventOne> disruptorOne(RingBuffer<EventTwo> transferRingBuffer) {
 //        ThreadFactory threadFactory = Executors.defaultThreadFactory();
     	ThreadFactory threadFactory = new CustomThreadFactory("EventOneDisruptor");
         Disruptor<EventOne> disruptor = new Disruptor<>(
@@ -47,11 +50,12 @@ public class DisruptorConfig {
         disruptor.handleEventsWithWorkerPool(handlers);
         disruptor.start();
 
+        System.out.println("Will Return Disruptor of Event ONE");
         return disruptor;
     }
 
     @Bean
-    public RingBuffer<EventTwo> transferRingBuffer() {
+    public RingBuffer<EventTwo> disruptorTwo() {
 //        ThreadFactory threadFactory = Executors.defaultThreadFactory();
     	ThreadFactory threadFactory = new CustomThreadFactory("EventTwoDisruptor");
         Disruptor<EventTwo> disruptor = new Disruptor<>(
@@ -70,12 +74,14 @@ public class DisruptorConfig {
         disruptor.handleEventsWithWorkerPool(handlers);
         disruptor.start();
 
+        System.out.println("Will Return Disruptor of Event TWO");
         return disruptor.getRingBuffer();
     }
 
 
     @Bean
-    public RingBuffer<EventOne> auditRingBuffer(Disruptor<EventOne> disruptor) {
+    public RingBuffer<EventOne> ringBufferOne(Disruptor<EventOne> disruptor) {
+    	System.out.println("Will Return Ring Buffer of Event ONE");
         return disruptor.getRingBuffer();
     }
 }

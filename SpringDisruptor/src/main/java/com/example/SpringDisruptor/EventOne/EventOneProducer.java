@@ -1,6 +1,9 @@
-package com.example.SpringDisruptor;
+package com.example.SpringDisruptor.EventOne;
 
 import com.lmax.disruptor.RingBuffer;
+
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +17,15 @@ public class EventOneProducer {
     }
 
     public void produce(String message) {
+        // [Publish] Event One
         long sequence = ringBuffer.next();
-        try {
-            EventOne event = ringBuffer.get(sequence);
-            event.setMessage(message);
-        } finally {
-            ringBuffer.publish(sequence);
-        }
+        EventOne event = ringBuffer.get(sequence);
+        CompletableFuture.runAsync(() -> {
+        	event.setMessage(message);
+	    	ringBuffer.publish(sequence);
+        });
+        
+        // [Initialize] Event
+        event.clear();
     }
 }

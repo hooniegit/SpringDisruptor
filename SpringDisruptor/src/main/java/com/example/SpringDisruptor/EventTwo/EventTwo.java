@@ -1,4 +1,4 @@
-package com.example.SpringDisruptor;
+package com.example.SpringDisruptor.EventTwo;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,4 +7,8 @@ import lombok.Setter;
 @Setter
 public class EventTwo {
     private String value;
+    
+    public void clear() {
+    	this.value = null;
+    }
 }
