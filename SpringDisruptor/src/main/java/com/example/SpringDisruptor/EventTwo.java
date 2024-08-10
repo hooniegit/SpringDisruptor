@@ -5,7 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DemoEvent {
-	private String STR;
-	private int INT;
+public class EventTwo {
+    private String value;
 }

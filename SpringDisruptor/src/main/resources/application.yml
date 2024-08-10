@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: SpringDisruptor
+
+disruptor:
+  eventOne:
+    bufferSize: 1024
+    threadCount: 200
+  eventTwo:
+    bufferSize: 1024
+    threadCount: 200
