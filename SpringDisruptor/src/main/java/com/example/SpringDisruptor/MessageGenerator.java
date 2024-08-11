@@ -26,7 +26,7 @@ public class MessageGenerator {
             String message = "Message " + i;
             producer.produce(message);
             
-            if (i % 100 == 0) {
+            if (i % 50 == 0) {
                 ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
                 int activeThreadCount = threadMXBean.getThreadCount();
                 int daemonThreadCount = threadMXBean.getDaemonThreadCount();
@@ -37,11 +37,11 @@ public class MessageGenerator {
                 System.out.println(">>>   Maximum Thread :" + peakThreadCount);
                 
                 // [Initialize] ThreadMXBean
-                threadMXBean = null;
+//                threadMXBean = null;
             }
             
             try {
-				Thread.sleep(100);
+				Thread.sleep(10);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

@@ -16,13 +16,13 @@ public class EventTwoHandler implements WorkHandler<EventTwo> {
         System.out.println("[Handler 2] Processing Thread Name: " + threadName + " | Thread ID: " + threadId);
         
         // [Initialize] Thread
-        currentThread = null;
+//        currentThread = null;
         
         // [Test]
         System.out.println("Handling Second event : " + event.getValue());
         
         // [Initialize] Event
-        event.clear();
+//        event.clear();
     }
 }
 
