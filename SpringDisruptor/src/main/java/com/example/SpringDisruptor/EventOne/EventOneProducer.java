@@ -21,17 +21,15 @@ public class EventOneProducer {
     }
 
     public void produce(String message) {
-        // [Publish] Event One
         long sequence = ringBuffer.next();
         EventOne event = ringBuffer.get(sequence);
         try {
-        CompletableFuture.runAsync(() -> {
-        	event.setMessage(message);
-	    	ringBuffer.publish(sequence);
-        }, executor);
+	        CompletableFuture.runAsync(() -> {
+	        	event.setMessage(message);
+		    	ringBuffer.publish(sequence);
+	        }, executor);
         } finally {
-        // [Initialize] Event
-        event.clear();
+        	event.setMessage(null);
         }
     }
 }

@@ -7,9 +7,5 @@ import lombok.Setter;
 @Setter
 public class EventOne {
     private String message;
-    
-    public void clear() {
-    	this.message = null;
-    }
 }
 

@@ -2,13 +2,15 @@ package com.example.SpringDisruptor;
 
 import com.example.SpringDisruptor.EventOne.EventOne;
 import com.example.SpringDisruptor.EventOne.EventOneHandler;
+import com.example.SpringDisruptor.EventOne.EventOneGCHandler;
 import com.example.SpringDisruptor.EventTwo.EventTwo;
 import com.example.SpringDisruptor.EventTwo.EventTwoHandler;
+import com.example.SpringDisruptor.EventTwo.EventTwoGCHandler;
 
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.WorkHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,6 +20,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.ApplicationContext;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 @Configuration
@@ -45,39 +48,45 @@ public class DisruptorConfig {
     }
     
     @Bean
-    public Disruptor<EventOne> disruptorOne(RingBuffer<EventTwo> transferRingBuffer) {
-        ThreadFactory threadFactory = new CustomThreadFactory("EventOneDisruptor");
+    public Disruptor<EventOne> disruptorOne(
+            RingBuffer<EventTwo> ringBufferTwo,
+            CustomThreadFactory customThreadFactory) {
+    	
+        System.out.println("[Config] Will Return <Disruptor> of Event ONE"); // [Log]
+    	
+        ThreadFactory threadFactory = customThreadFactory;
         Disruptor<EventOne> disruptor = new Disruptor<>(
             EventOne::new,
             eventOneBufferSize,
             threadFactory,
             ProducerType.SINGLE,
-            new SleepingWaitStrategy()
+            new BlockingWaitStrategy()
         );
 
-        // Use ApplicationContext to get EventOneHandler beans
         WorkHandler<EventOne>[] handlers = new EventOneHandler[eventOneThreadCount];
         for (int i = 0; i < handlers.length; i++) {
-            // Retrieve EventOneHandler bean from context with all dependencies injected
             handlers[i] = context.getBean(EventOneHandler.class);
         }
 
-        disruptor.handleEventsWithWorkerPool(handlers);
+        disruptor.handleEventsWithWorkerPool(handlers)
+                 .then(new EventOneGCHandler());
         disruptor.start();
 
-        System.out.println("Will Return Disruptor of Event ONE");
         return disruptor;
     }
 
     @Bean
-    public RingBuffer<EventTwo> disruptorTwo() {
-        ThreadFactory threadFactory = new CustomThreadFactory("EventTwoDisruptor");
+    public RingBuffer<EventTwo> ringBufferTwo(CustomThreadFactory customThreadFactory) {
+    	
+        System.out.println("[Config] Will Return <RingBuffer> of Event TWO"); // [Log]
+    	
+    	ThreadFactory threadFactory = customThreadFactory;
         Disruptor<EventTwo> disruptor = new Disruptor<>(
             EventTwo::new,
             eventTwoBufferSize,
             threadFactory,
             ProducerType.SINGLE,
-            new SleepingWaitStrategy()
+            new BlockingWaitStrategy()
         );
 
         WorkHandler<EventTwo>[] handlers = new EventTwoHandler[eventTwoThreadCount];
@@ -85,16 +94,17 @@ public class DisruptorConfig {
             handlers[i] = context.getBean(EventTwoHandler.class);
         }
 
-        disruptor.handleEventsWithWorkerPool(handlers);
+        disruptor.handleEventsWithWorkerPool(handlers)
+        	.then(new EventTwoGCHandler());
         disruptor.start();
 
-        System.out.println("Will Return Disruptor of Event TWO");
         return disruptor.getRingBuffer();
     }
 
     @Bean
     public RingBuffer<EventOne> ringBufferOne(Disruptor<EventOne> disruptor) {
-        System.out.println("Will Return Ring Buffer of Event ONE");
+        System.out.println("[Config] Will Return <Ring Buffer> of Event ONE");
+        
         return disruptor.getRingBuffer();
     }
 }

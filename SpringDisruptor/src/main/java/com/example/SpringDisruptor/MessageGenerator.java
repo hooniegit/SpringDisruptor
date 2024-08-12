@@ -36,12 +36,20 @@ public class MessageGenerator {
                 System.out.println(">>>    Daemon Thread :" + daemonThreadCount);
                 System.out.println(">>>   Maximum Thread :" + peakThreadCount);
                 
-                // [Initialize] ThreadMXBean
-//                threadMXBean = null;
+                threadMXBean = null;
+            }
+            
+            if (i % 1000 == 0) {
+            	try {
+            		System.out.println("[Pause] System Sleep..");
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
             }
             
             try {
-				Thread.sleep(10);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

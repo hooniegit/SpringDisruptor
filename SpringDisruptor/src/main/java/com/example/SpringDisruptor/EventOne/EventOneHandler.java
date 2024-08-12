@@ -24,26 +24,25 @@ public class EventOneHandler implements WorkHandler<EventOne> {
 
     @Override
     public void onEvent(EventOne eventOne) throws Exception {
-        // [Test] Check Current Thread
+    	// [Task] Check Current Thread
         Thread currentThread = Thread.currentThread();
         String threadName = currentThread.getName();
         long threadId = currentThread.getId();
-        System.out.println("[Handler 1] Processing Thread Name: " + threadName + " | Thread ID: " + threadId);
+        System.out.println(">> [Handler 1] Processing Thread Name: " + threadName + " | Thread ID: " + threadId);
+        currentThread = null;
+        threadName = null;
 
-        // [Publish] Event Two
+        // [Task] Publish Event
         long sequence = ringBuffer.next();
+        EventTwo eventTwo = ringBuffer.get(sequence);
         try {
-	        EventTwo eventTwo = ringBuffer.get(sequence);
-	
-	        // Use the customExecutor for asynchronous execution
 	        CompletableFuture.runAsync(() -> {
-	            eventTwo.setValue(eventOne.getMessage());
+	            eventTwo.setMessage(eventOne.getMessage());
 	            ringBuffer.publish(sequence);
-	        }, executor); // Specify the executor here
+	        }, executor);
         } finally {
-        // [Initialize] Events
-//        eventTwo.clear();
-//        eventOne.clear();
+	        Thread.sleep(1000);
+	        eventTwo.setMessage(null);
         }
     }
 }
